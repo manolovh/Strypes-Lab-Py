@@ -69,12 +69,12 @@ def play_song():
 
     acces_token = "TSTneJtAfZ5xkdvVurePl2SMokIcixtCfiEAlCwoefrR-m20GOmEBSBglbQCDGZv"
 
-    genius = lyricsgenius.Genius(acces_token)
-    song_lyrics = genius.search_song(artist, title)
-    lyric = song_lyrics.lyrics
+    connection = lyricsgenius.Genius(acces_token)
+    song_info = connection.search_song(artist, title)
+    song_lyrics = song_info.lyrics
 
     lyrics_tab.delete('1.0', 'end')
-    lyrics_tab.insert(END, lyric)
+    lyrics_tab.insert(END, song_lyrics)
 
 stopped = False
 def stop_song():
@@ -107,13 +107,13 @@ def go_forward():
     status_label.config(text='')
     song_slider.config(value=0)
 
-    next_song = playlist_box.curselection()
+    curr_song = playlist_box.curselection()
     # get the first item from the returned tuple and add 1 to it to receive the next song index
-    next_song = next_song[0] + 1
+    next_song = curr_song[0] + 1
     # get the song name from the index
-    song = playlist_box.get(next_song)
+    song_name = playlist_box.get(next_song)
     # add the whole path to it
-    song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song}.mp3"
+    song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
 
@@ -127,13 +127,13 @@ def go_backward():
     status_label.config(text='')
     song_slider.config(value=0)
 
-    previous_song = playlist_box.curselection()
+    curr_song = playlist_box.curselection()
     # get the first item from the returned tuple and add 1 to it to receive the previous song index
-    previous_song = previous_song[0] - 1
+    previous_song = curr_song[0] - 1
     # get the song name from the index
-    song = playlist_box.get(previous_song)
+    song_name = playlist_box.get(previous_song)
     # add the whole path to it
-    song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song}.mp3"
+    song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
 
@@ -186,16 +186,18 @@ def get_time():
 
     song_mutagen = MP3(song)
     global song_length
-    song_length = song_mutagen.info.length
+    song_length = int(song_mutagen.info.length)
     # convert to time format
     converted_song_length = time.strftime('%M:%S', time.gmtime(song_length))
 
     global paused
-    if int(song_slider.get()) == int(song_length):
+    # Reset widgets if the song ends
+    if int(song_slider.get()) == song_length:
         stop_song()
     elif not paused:
+        # update song slider
         next_time = int(song_slider.get()) + 1
-        song_slider.config(to=int(song_length), value=next_time)
+        song_slider.config(to=song_length, value=next_time)
 
         # get the time position from the slider
         current_time = int(song_slider.get())
@@ -203,6 +205,8 @@ def get_time():
 
         if current_time >= 0:
             status_label.config(text=f"Elapsed time: {converted_current_time}/{converted_song_length}")
+
+    # call back the function again after 1000ms(1 sec)
     status_label.after(1000, get_time)
 
 
@@ -212,8 +216,8 @@ def set_volume(event):
     pygame.mixer.music.set_volume(current_volume)
 
 def slide_song(event):
-    song = playlist_box.get(ACTIVE)
-    song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song}.mp3"
+    song_name = playlist_box.get(ACTIVE)
+    song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
 
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0, start=int(song_slider.get()))
