@@ -8,10 +8,11 @@ import lyricsgenius
 
 root = Tk()
 root.title('MP3 PLAYER')
-root.geometry('580x570')
+root.geometry('580x580')
 
 pygame.mixer.init()
 
+# Store playlist song names
 car_playlist = []
 home_playlist = []
 temporary_playlist = []
@@ -42,15 +43,13 @@ def add_songs():
         song = song.replace('.mp3', '')
         playlist_box.insert(END, song)
 
-def delete_song():
+def delete_selected_song():
     playlist_box.delete(ANCHOR)
 
 def clear_current_playlist():
     playlist_box.delete(0, END)
 
 def play_song():
-    status_label.config(text='')
-    song_slider.config(value=0)
     global stopped
     stopped = False
 
@@ -60,9 +59,10 @@ def play_song():
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
 
+    # get current song slider position and the elapsed time
     get_time()
 
-    # Display song lyrics
+    # Display song lyrics, using the lyricsgenius module
     song_info = song_.split(' - ')
     artist = str(song_info[0])
     title = str(song_info[1])
@@ -78,6 +78,7 @@ def play_song():
 
 stopped = False
 def stop_song():
+    # stop the song and reset widgets
     pygame.mixer.music.stop()
     playlist_box.select_clear(ACTIVE)
 
@@ -108,11 +109,11 @@ def go_forward():
     song_slider.config(value=0)
 
     curr_song = playlist_box.curselection()
-    # get the first item from the returned tuple and add 1 to it to receive the next song index
+    # get the song index returned tuple and add 1 to it to receive the next
     next_song = curr_song[0] + 1
     # get the song name from the index
     song_name = playlist_box.get(next_song)
-    # add the whole path to it
+    # add the whole path to it and play it
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
@@ -128,11 +129,11 @@ def go_backward():
     song_slider.config(value=0)
 
     curr_song = playlist_box.curselection()
-    # get the first item from the returned tuple and add 1 to it to receive the previous song index
+    # get the song index returned tuple and add 1 to it to receive the previous
     previous_song = curr_song[0] - 1
     # get the song name from the index
     song_name = playlist_box.get(previous_song)
-    # add the whole path to it
+    # add the whole path to it and play it
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
@@ -143,6 +144,7 @@ def go_backward():
     playlist_box.selection_set(previous_song)
 
 def double_click_play(event):
+    # play a song by double-clicking on it
     play_song()
 
 # PLAYLIST FUNCTIONS
@@ -176,11 +178,11 @@ def load_temporary_playlist():
 
 # Get current time position of the song
 def get_time():
+    # if stopped, break out the function
     if stopped:
         return
 
-    # current_time = pygame.mixer.music.get_pos() // 1000
-
+    # else get the song length using the mutagen module
     song = playlist_box.get(ACTIVE)
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song}.mp3"
 
@@ -216,6 +218,7 @@ def set_volume(event):
     pygame.mixer.music.set_volume(current_volume)
 
 def slide_song(event):
+    # gets the current position of the song and plays it from there
     song_name = playlist_box.get(ACTIVE)
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
 
@@ -229,7 +232,7 @@ pause_button_image = PhotoImage(file='Images/pause.png')
 next_button_image = PhotoImage(file='Images/forward.png')
 previous_button_image = PhotoImage(file='Images/back.png')
 
-# Main widgets
+# Playlist widgets
 playlist_box = Listbox(root, bg='black', fg='white', selectbackground='white', selectforeground='red', width=60)
 playlist_box.grid(row=0, column=0, sticky='nsew', columnspan=5, rowspan=5, pady=30)
 
@@ -237,6 +240,7 @@ playlist_scrollbar = Scrollbar(root, orient=VERTICAL, width=20, command=playlist
 playlist_scrollbar.grid(row=0,rowspan=5, column=6, sticky='nsw', pady=30)
 playlist_box['yscrollcommand'] = playlist_scrollbar.set
 
+# Buttons widgets
 button_frame = Frame(root)
 button_frame.grid(row=6, columnspan=5, rowspan=2, padx=40, pady=10)
 
@@ -252,6 +256,7 @@ pause_button.grid(column=2, row=0, padx=10)
 stop_button.grid(column=3, row=0, padx=10)
 next_button.grid(column=4, row=0, padx=10)
 
+# Menu choices widgets
 choice_menu = Menu(root)
 root.config(menu=choice_menu)
 
@@ -261,7 +266,7 @@ add_song_menu.add_command(label='Add song(s) to the playlist', command=add_songs
 
 delete_song_menu = Menu(choice_menu, tearoff=0)
 choice_menu.add_cascade(label='Delete Songs', menu=delete_song_menu)
-delete_song_menu.add_command(label='Delete selected song', command=delete_song)
+delete_song_menu.add_command(label='Delete selected song', command=delete_selected_song)
 delete_song_menu.add_command(label='Clear the playlist', command=clear_current_playlist)
 
 add_to_playlist_menu = Menu(choice_menu, tearoff=0)
@@ -276,18 +281,21 @@ load_playlist_menu.add_command(label='Load Car Playlist', command=load_car_playl
 load_playlist_menu.add_command(label='Load Home Playlist', command=load_home_playlist)
 load_playlist_menu.add_command(label='Load `Here Today - Gone Tommorow` Playlist', command=load_temporary_playlist)
 
+# Volume widgets
 volume_frame = ttk.LabelFrame(root, text='VOLUME')
 volume_frame.grid(row=1, column=7, pady=15, padx=20, sticky=E)
 
 volume_slider = ttk.Scale(volume_frame, from_=1, to=0, orient=VERTICAL, length=140, value=0.75, command=set_volume)
 volume_slider.grid(row=0, column=1, padx=20)
 
+# Song slider widgets
 song_slider = ttk.Scale(root, from_=0, to=60, orient=HORIZONTAL, length=300, value=0, command=slide_song)
 song_slider.grid(row=8, column=2, pady=20)
 
 status_label = Label(root, text='', font=('TkTextFont 15 italic'))
 status_label.grid(row=9,column=2, columnspan=4, sticky=E, pady=10)
 
+# Lyrics widgets
 lyrics_tab = Text(root, height=10, width=58, wrap=WORD, borderwidth="1", relief="groove")
 lyrics_tab.grid(row=10, columnspan=5)
 
@@ -295,6 +303,7 @@ lyrics_scrollbar = Scrollbar(root, orient=VERTICAL, width=20, command=lyrics_tab
 lyrics_scrollbar.grid(row=10, column=6, sticky='nsw')
 lyrics_tab['yscrollcommand'] = lyrics_scrollbar.set
 
+# handle double-click play
 playlist_box.bind('<Double-Button>', double_click_play)
 
 root.mainloop()
