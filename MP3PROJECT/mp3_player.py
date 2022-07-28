@@ -38,7 +38,7 @@ def add_songs():
     songs = filedialog.askopenfilenames(initialdir='C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles',
                                        title='Choose a song: ')
     for song in songs:
-        # strip extra path and extension info
+        # strip extra path and extension info (unique to each user)
         song = song.replace('C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/', '')
         song = song.replace('.mp3', '')
         playlist_box.insert(END, song)
@@ -50,11 +50,12 @@ def clear_current_playlist():
     playlist_box.delete(0, END)
 
 def play_song():
+    # reset the stopped variable
     global stopped
     stopped = False
 
     song_ = playlist_box.get(ACTIVE)
-    # get the entire path of the song to play it
+    # get the entire path of the song to play it (unique to each user)
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_}.mp3"
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
@@ -62,19 +63,9 @@ def play_song():
     # get current song slider position and the elapsed time
     get_time()
 
-    # Display song lyrics, using the lyricsgenius module
-    song_info = song_.split(' - ')
-    artist = str(song_info[0])
-    title = str(song_info[1])
+    # get song lyrics
+    get_lyrics(song_)
 
-    acces_token = "TSTneJtAfZ5xkdvVurePl2SMokIcixtCfiEAlCwoefrR-m20GOmEBSBglbQCDGZv"
-
-    connection = lyricsgenius.Genius(acces_token)
-    song_info = connection.search_song(artist, title)
-    song_lyrics = song_info.lyrics
-
-    lyrics_tab.delete('1.0', 'end')
-    lyrics_tab.insert(END, song_lyrics)
 
 stopped = False
 def stop_song():
@@ -87,6 +78,7 @@ def stop_song():
 
     global stopped
     stopped = True
+    # reset the paused variable
     global paused
     paused = False
 
@@ -113,10 +105,13 @@ def go_forward():
     next_song = curr_song[0] + 1
     # get the song name from the index
     song_name = playlist_box.get(next_song)
-    # add the whole path to it and play it
+    # add the whole path to it and play it (unique to each user)
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
+
+    # get song lyrics
+    get_lyrics(song_name)
 
     # change the selected song field
     playlist_box.select_clear(0, END)
@@ -133,10 +128,13 @@ def go_backward():
     previous_song = curr_song[0] - 1
     # get the song name from the index
     song_name = playlist_box.get(previous_song)
-    # add the whole path to it and play it
+    # add the whole path to it and play it (unique to each user)
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song_name}.mp3"
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
+
+    # get song lyrics
+    get_lyrics(song_name)
 
     # change the selected song field
     playlist_box.select_clear(0, END)
@@ -184,8 +182,10 @@ def get_time():
 
     # else get the song length using the mutagen module
     song = playlist_box.get(ACTIVE)
+    # song path unique to each user
     song = f"C:/Users/hmano/PycharmProjects/StrypesLab/venv/MP3PROJECT/MusicFiles/{song}.mp3"
 
+    # get song info, using the mutagen module
     song_mutagen = MP3(song)
     global song_length
     song_length = int(song_mutagen.info.length)
@@ -224,6 +224,23 @@ def slide_song(event):
 
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0, start=int(song_slider.get()))
+
+# Lyrics function
+def get_lyrics(song):
+    # Display song lyrics, using the lyricsgenius module
+    song_info = song.split(' - ')
+    artist = str(song_info[0])
+    title = str(song_info[1])
+
+    # use the API with an unique token
+    acces_token = "TSTneJtAfZ5xkdvVurePl2SMokIcixtCfiEAlCwoefrR-m20GOmEBSBglbQCDGZv"
+
+    connection = lyricsgenius.Genius(acces_token)
+    song_info = connection.search_song(artist, title)
+    song_lyrics = song_info.lyrics
+
+    lyrics_tab.delete('1.0', 'end')
+    lyrics_tab.insert(END, song_lyrics)
 
 # Load images in memory
 play_button_image = PhotoImage(file='Images/play.png')
