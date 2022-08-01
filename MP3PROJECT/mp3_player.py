@@ -82,6 +82,7 @@ def stop_song():
     global paused
     paused = False
 
+    # reset the lyrics tab
     lyrics_tab.delete('1.0', 'end')
 
 paused = False
