@@ -1,1 +1,0 @@
-{('LoL', 2012): {'publisher': 'Riot Games', 'mode': 'Multiplayer', 'genre': ['Action', 'Fantasy'], 'rating': 9.1}, ('game game', 2000): {'publisher': 'riot', 'genre': ['rpg'], 'mode': 'singleplayer', 'rating': '8.3'}}
