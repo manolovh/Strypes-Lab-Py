@@ -1,0 +1,16 @@
+MP3 Player Documentation
+
+GitHub Link -> https://github.com/manolovh/StrypesLab/tree/master/MP3PROJECT
+
+1. Brief description
+The project represents a basic app, used to load .mp3 files and play them.
+Modules used in the implementation: Tkinter, Pygame, Mutagen, Time and Lyricsgenius.
+
+2. Main components:
+The player includes:
+- loading songs from a directory
+- buttons for playing, stopping, pausing the current song, skipping back or forward a song
+- sliders: volume - to control the music sound; current song position - that can be slided forward or backward
+- menu bars: to load songs to the current playlist; to delete songs from the current playlist; to save selected song to a playlist; to load pre-saved playlists
+- scrollable label that displays the lyrics of the current song
+- a label that displays the elapsed time of the total song length
