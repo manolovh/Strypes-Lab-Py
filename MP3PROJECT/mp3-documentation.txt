@@ -1,7 +1,5 @@
 MP3 Player Documentation
 
-GitHub Link -> https://github.com/manolovh/StrypesLab/tree/master/MP3PROJECT
-
 1. Brief description
 The project represents a basic app, used to load .mp3 files and play them.
 Modules used in the implementation: Tkinter, Pygame, Mutagen, Time and Lyricsgenius.
